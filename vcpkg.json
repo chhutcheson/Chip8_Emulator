@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "chip-8",
+  "version": "0.1.0",
+  "dependencies": [
+    "libsodium"
+  ],
+  "features": {
+    "tests": {
+      "description": "Build the GoogleTest unit tests",
+      "dependencies": [
+        "gtest"
+      ]
+    }
+  }
+}
