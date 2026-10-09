@@ -394,7 +394,7 @@ static void  Chip8_Op_Fx18(Chip8 *chip) {
 /**
  * Add the value in register x to the chip Index
  */
-static void  Chip8_Op_Fx18(Chip8 *chip) {
+static void  Chip8_Op_Fx1E(Chip8 *chip) {
     uint8_t x = (chip->OpCode & 0x0f00u) >> 8u; // get 3rd nybble
     chip->Index += chip->Registers[x];
 }
@@ -402,7 +402,7 @@ static void  Chip8_Op_Fx18(Chip8 *chip) {
 /**
  * Set the Index to the address of the sprite for value in register x
  */
-static void  Chip8_Op_Fx18(Chip8 *chip) {
+static void  Chip8_Op_Fx29(Chip8 *chip) {
     uint8_t x = (chip->OpCode & 0x0f00u) >> 8u; // get 3rd nybble
     uint8_t digit = chip->Registers[x];
     chip->Index = CHIP8_FONT_START + (5 * digit);
