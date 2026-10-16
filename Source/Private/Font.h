@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-constexpr uint32_t CHIP8_FONT_START = 0x50;
-constexpr uint32_t FONTSET_SIZE = 80;
+#define CHIP8_FONT_START    0x50
+#define CHIP8_FONTSET_SIZE  80
 
 // each bit represents a px if you take 5 bytes
-constexpr uint8_t CHIP8_FONTSET[FONTSET_SIZE] = {
+const uint8_t CHIP8_FONTSET[CHIP8_FONTSET_SIZE] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2

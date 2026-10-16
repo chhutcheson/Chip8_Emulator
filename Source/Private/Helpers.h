@@ -2,6 +2,7 @@
 #define CHIP8_HELPERS_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 // Result sometype
 #define OPTIONAL(T) struct { bool Ok; T Value; }

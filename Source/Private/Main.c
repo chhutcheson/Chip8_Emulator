@@ -24,21 +24,32 @@ int main(int argc, char **argv) {
                     CHIP8_FRAME_BUFFER_W, CHIP8_FRAME_BUFFER_H);
 
     Chip8 chip;
-    Chip8_LoadRom(&chip, romFilename);
+    Chip8_Init(&chip);
+    if (Chip8_LoadRom(&chip, romFilename) != 0) {
+        fprintf(stderr, "Error: unable to load ROM %s\n", romFilename);
+        Platform_Shutdown(&platform);
+        return 1;
+    }
 
     int videoPitch = sizeof(chip.FrameBuffer[0]) * CHIP8_FRAME_BUFFER_W;
-    
+
     bool quit = false;
+    GTimer* timer = g_timer_new();
 
     while (!quit){
         quit = Platform_ProcessInput(chip.Keypad);
-        GTimer* timer = g_timer_new();
 
-        if (1000*g_timer_elapsed(timer, nullptr) > (float)cycleDelay)
+        if (1000*g_timer_elapsed(timer, NULL) > (float)cycleDelay)
         {
+            g_timer_start(timer); // restart the delay for the next cycle
+
             Chip8_Cycle(&chip);
 
             Platform_Update(&platform, chip.FrameBuffer, videoPitch);
         }
     }
+
+    g_timer_destroy(timer);
+    Platform_Shutdown(&platform);
+    return 0;
 }

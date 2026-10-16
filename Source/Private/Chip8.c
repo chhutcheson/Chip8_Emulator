@@ -165,7 +165,7 @@ static void Chip8_Op_8xy5(Chip8 *chip) {
     uint8_t x = (chip->OpCode & 0x0f00) >> 8u; // get 3rd nybble
     uint8_t y = (chip->OpCode & 0x00f0) >> 4u; // get 2nd nybble
     
-    if (chip->Registers[x] > chip->Registers[y]) { // underflown the byte
+    if (chip->Registers[x] >= chip->Registers[y]) { // underflown the byte
         chip->Registers[0xf] = 1; // underflown flag set
     } else {
         chip->Registers[0xf] = 0; // reset underflown flag
@@ -191,7 +191,7 @@ static void Chip8_Op_8xy7(Chip8 *chip) {
     uint8_t x = (chip->OpCode & 0x0f00) >> 8u; // get 3rd nybble
     uint8_t y = (chip->OpCode & 0x00f0) >> 4u; // get 2nd nybble
 
-    if (chip->Registers[x] < chip->Registers[y]) { // DO NOT BORROW
+    if (chip->Registers[x] <= chip->Registers[y]) { // DO NOT BORROW
         chip->Registers[0xf] = 1; // no borrow flag set
     } else {
         chip->Registers[0xf] = 0; // reset no borrow flag
@@ -263,8 +263,16 @@ static void Chip8_Op_Dxyn(Chip8 *chip) {
     chip->Registers[0xf] = 0; // reset flag to get new condition
 
     for (uint32_t row = 0; row < h; ++row) {
+        if (yPos + row >= CHIP8_FRAME_BUFFER_H) { // prevent overscan
+            break;
+        }
+
         uint8_t spriteByte = chip->Memory[chip->Index + row];
         for (uint32_t col = 0; col < 8; ++col) {
+            if (xPos + col >= CHIP8_FRAME_BUFFER_W) { // prevent overscan
+                break;
+            }
+
             uint8_t spritePx = spriteByte & (0x80u >> col); // each bit is a px
             uint32_t *screenPx = &chip->FrameBuffer[(yPos + row) * CHIP8_FRAME_BUFFER_W // go down y+r rows
                                                     +(xPos + col)]; // col offset
@@ -287,7 +295,7 @@ static void Chip8_Op_Dxyn(Chip8 *chip) {
  */
 static void Chip8_Op_Ex9E(Chip8 *chip) {
     uint8_t x = (chip->OpCode & 0x0f00u) >> 8u; // get 3rd nybble
-    uint8_t key = chip->Registers[x];
+    uint8_t key = chip->Registers[x] & 0xfu;
 
     chip->PC += (chip->Keypad[key] != 0) * CHIP8_OP_WIDTH;
 }
@@ -297,7 +305,7 @@ static void Chip8_Op_Ex9E(Chip8 *chip) {
  */
 static void Chip8_Op_ExA1(Chip8 *chip) {
     uint8_t x = (chip->OpCode & 0x0f00u) >> 8u; // get 3rd nybble
-    uint8_t key = chip->Registers[x];
+    uint8_t key = chip->Registers[x] & 0xfu;
 
     chip->PC += (chip->Keypad[key] == 0) * CHIP8_OP_WIDTH;
 }
@@ -316,8 +324,6 @@ static void  Chip8_Op_Fx07(Chip8 *chip) {
  */
 static void  Chip8_Op_Fx0A(Chip8 *chip) {
     uint8_t x = (chip->OpCode & 0x0f00u) >> 8u; // get 3rd nybble
-
-    chip->Registers[x] = chip->DelayTimer;
 
     // keypad is arr of u8, so sizeof == num elems
     bool isKeyPressed = false;
@@ -364,7 +370,7 @@ static void  Chip8_Op_Fx1E(Chip8 *chip) {
  */
 static void  Chip8_Op_Fx29(Chip8 *chip) {
     uint8_t x = (chip->OpCode & 0x0f00u) >> 8u; // get 3rd nybble
-    uint8_t digit = chip->Registers[x];
+    uint8_t digit = chip->Registers[x] & 0xfu;
     chip->Index = CHIP8_FONT_START + (5 * digit);
 }
 
@@ -379,9 +385,9 @@ static void  Chip8_Op_Fx33(Chip8 *chip) {
     // ones place
     chip->Memory[chip->Index + 2]   = value % 10;
     // tens place
-    chip->Memory[chip->Index + 1]   = value % 10;
+    chip->Memory[chip->Index + 1]   = (value / 10) % 10;
     // hundreds place
-    chip->Memory[chip->Index]       = value % 10;
+    chip->Memory[chip->Index]       = value / 100;
 }
 
 /**
@@ -531,6 +537,7 @@ int Chip8_LoadRom(Chip8 *chip, char const *filename) {
     
     // ROM is too big for the memory, how??
     if (fileContents.Length > CHIP8_MEMORY_SIZE - CHIP8_PROGRAM_START) {
+        free(fileContents.String);
         return -69; // too big for memory!!
     }
 

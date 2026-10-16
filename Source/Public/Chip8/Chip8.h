@@ -7,14 +7,13 @@
 extern "C" {
 #endif
 
-static constexpr uint16_t CHIP8_MEMORY_SIZE         = 4096;
-static constexpr uint16_t CHIP8_MEMORY_MASK         = 0xfffu; // 4096 - 1
-static constexpr uint16_t CHIP8_PROGRAM_START       = 0x200;
-//                                                    w  * l * u32 size
-static constexpr uint32_t CHIP8_FRAME_BUFFER_W      = 64;
-static constexpr uint32_t CHIP8_FRAME_BUFFER_H      = 32;
-static constexpr uint32_t CHIP8_FRAME_BUFFER_SIZE   = CHIP8_FRAME_BUFFER_W * CHIP8_FRAME_BUFFER_H;
-static constexpr uint8_t  CHIP8_OP_WIDTH            = 2; // ops all 2 bytes wide
+#define CHIP8_MEMORY_SIZE         4096
+#define CHIP8_MEMORY_MASK         0xfffu
+#define CHIP8_PROGRAM_START       0x200
+#define CHIP8_FRAME_BUFFER_W      64
+#define CHIP8_FRAME_BUFFER_H      32
+#define CHIP8_FRAME_BUFFER_SIZE   CHIP8_FRAME_BUFFER_W * CHIP8_FRAME_BUFFER_H
+#define  CHIP8_OP_WIDTH           2
 
 struct Chip8;
 typedef void (*Chip8OpImpl)(struct Chip8*);

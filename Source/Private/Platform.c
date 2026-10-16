@@ -21,7 +21,7 @@ void Platform_Init(Platform *p, const char *title, int32_t wndWidth,
         fprintf(stderr, "Error: %s", err);
     }
 
-    p->renderer = SDL_CreateRenderer(p->window, nullptr);
+    p->renderer = SDL_CreateRenderer(p->window, NULL);
     if (!p->renderer) {
         char const*err = SDL_GetError();
         fprintf(stderr, "Error: %s", err);
@@ -38,10 +38,18 @@ void Platform_Init(Platform *p, const char *title, int32_t wndWidth,
 }
 
 void Platform_Update(Platform *p, void const* frameBuffer, int pitch) {
-    SDL_UpdateTexture(p->texture, nullptr, frameBuffer, pitch);
+    SDL_UpdateTexture(p->texture, NULL, frameBuffer, pitch);
     SDL_RenderClear(p->renderer);
-    SDL_RenderTexture(p->renderer, p->texture, nullptr, nullptr);
+    SDL_RenderTexture(p->renderer, p->texture, NULL, NULL);
     SDL_RenderPresent(p->renderer);
+}
+
+void Platform_Shutdown(Platform *p) {
+    // destroy in reverse order of creation, NULL is safe for each
+    SDL_DestroyTexture(p->texture);
+    SDL_DestroyRenderer(p->renderer);
+    SDL_DestroyWindow(p->window);
+    SDL_Quit();
 }
 
 bool Platform_ProcessInput(uint8_t* keys) {

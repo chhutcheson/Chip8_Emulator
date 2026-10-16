@@ -8,7 +8,7 @@
 Optional_FatString ReadFileToString(char const *filename) {
     FILE *hFile = fopen(filename, "rb");
 
-    if (hFile == nullptr) {
+    if (hFile == NULL) {
         fprintf(stderr, "Error: file %s was not able to be opened\n", filename);
         return NONE(Optional_FatString);
     }
